@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-11-01 14:14:18",
+  "test_results": {
+    "smoothing": {
+      "one_euro": {
+        "mse": 600.6596597486605,
+        "smoothness": 4.0646247492493,
+        "lag": 5,
+        "time_ms": 1.0645389556884766,
+        "points_per_second": 93937.37961926092
+      },
+      "kalman": {
+        "mse": 31.50083185614634,
+        "smoothness": 7.980912597960165,
+        "lag": 0,
+        "time_ms": 31.530380249023438,
+        "points_per_second": 3171.544371181417
+      },
+      "ema": {
+        "mse": 102.68903027826781,
+        "smoothness": 6.237758794540306,
+        "lag": 2,
+        "time_ms": 1.0023117065429688,
+        "points_per_second": 99769.36251189343
+      }
+    }
+  },
+  "summary": {
+    "overall_status": "PASS",
+    "recommendations": [
+      "Use kalman for smoothing (best MSE: 31.5008)"
+    ],
+    "issues_found": [],
+    "best_smoother": "kalman"
+  }
+}

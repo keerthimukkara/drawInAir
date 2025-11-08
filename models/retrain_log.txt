@@ -1,0 +1,31 @@
+Real counts: {'line_horizontal': 715, 'line_vertical': 5, 'circle_clockwise': 5, 'zigzag': 9}
+Generating 1285 synthetic samples for line_horizontal (have 715)
+Generating 1995 synthetic samples for line_vertical (have 5)
+Generating 1995 synthetic samples for circle_clockwise (have 5)
+Generating 1991 synthetic samples for zigzag (have 9)
+Final counts: {'line_horizontal': 2000, 'line_vertical': 2000, 'circle_clockwise': 2000, 'zigzag': 2000}
+Saved focused model to models\focused_random_forest.pkl
+
+Evaluation:
+Accuracy: 1.0
+
+Classification Report:
+
+                  precision    recall  f1-score   support
+
+ line_horizontal       1.00      1.00      1.00      2000
+   line_vertical       1.00      1.00      1.00      2000
+circle_clockwise       1.00      1.00      1.00      2000
+          zigzag       1.00      1.00      1.00      2000
+
+        accuracy                           1.00      8000
+       macro avg       1.00      1.00      1.00      8000
+    weighted avg       1.00      1.00      1.00      8000
+
+
+Confusion Matrix:
+
+[[2000    0    0    0]
+ [   0 2000    0    0]
+ [   0    0 2000    0]
+ [   0    0    0 2000]]
