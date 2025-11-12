@@ -1,6 +1,6 @@
 """
 Gesture Recognition Algorithms for Draw in Air
-Author: Bavishya
+Author: Swapna
 Purpose: Classify and recognize drawing gestures
 """
 
@@ -25,9 +25,6 @@ class TemplateMatching:
     - Works well for consistent gestures
     
     How it works: Compare input to stored templates using distance metric
-    
-    Limitation: Sensitive to scale and rotation
-    Use case: Quick prototyping, baseline comparison
     """
     def __init__(self):
         self.templates = {}
@@ -113,9 +110,8 @@ class DynamicTimeWarping:
     - Standard for time-series comparison
     
     How it works: Finds optimal alignment between sequences
-    
-    Advantage over Template Matching: Speed-invariant
-    Use case: When users draw at different speeds
+    Compute DTW distance using fastdtw, which aligns sequences of different lengths/speeds.
+    Select gesture with minimum distance
     """
     def __init__(self):
         self.templates = {}
@@ -195,9 +191,9 @@ class HMMGestureRecognizer:
     - Used in speech recognition (proven technology)
     
     How it works: Models gesture as sequence of hidden states
-    
-    Advantage: Probabilistic framework, handles uncertainty
-    Use case: When gesture has distinct phases
+    Train an HMM for each gesture type using hmmlearn.GaussianHMM.
+    Each model learns the “gesture dynamics” — how features evolve over time.
+    For recognition, compute log-likelihood of input under each HMM → choose max likelihood.
     """
     def __init__(self, n_states=5):
         self.n_states = n_states
@@ -258,108 +254,6 @@ class HMMGestureRecognizer:
         return best_match, confidence
 
 
-"""class CNNGestureRecognizer:
-   
-    Algorithm 4: Convolutional Neural Network (CNN)
-    
-    Why: Deep learning for pattern recognition
-    - Learns features automatically (no manual engineering)
-    - High accuracy with sufficient data
-    - Can learn complex patterns
-    
-    How it works: Convert gesture to image, use CNN to classify
-    
-    Why CNN over other DNNs: Exploits spatial structure
-    Use case: When you have large labeled dataset (>1000 samples)
-   
-    def __init__(self, image_size=64, num_classes=10):
-        self.image_size = image_size
-        self.num_classes = num_classes
-        self.model = self._build_model()
-        self.class_names = []
-    
-    def _build_model(self):
-        Build CNN architecture
-        model = keras.Sequential([
-            keras.layers.Conv2D(32, (3, 3), activation='relu', 
-                               input_shape=(self.image_size, self.image_size, 1)),
-            keras.layers.MaxPooling2D((2, 2)),
-            keras.layers.Conv2D(64, (3, 3), activation='relu'),
-            keras.layers.MaxPooling2D((2, 2)),
-            keras.layers.Conv2D(64, (3, 3), activation='relu'),
-            keras.layers.Flatten(),
-            keras.layers.Dense(64, activation='relu'),
-            keras.layers.Dropout(0.5),
-            keras.layers.Dense(self.num_classes, activation='softmax')
-        ])
-        
-        model.compile(
-            optimizer='adam',
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        return model
-    
-    def _gesture_to_image(self, points):
-        Convert gesture points to binary image
-        image = np.zeros((self.image_size, self.image_size))
-        
-        if len(points) == 0:
-            return image
-        
-        points = np.array(points)
-        
-        # Normalize to image coordinates
-        min_vals = np.min(points, axis=0)
-        max_vals = np.max(points, axis=0)
-        range_vals = max_vals - min_vals
-        
-        if np.any(range_vals == 0):
-            return image
-        
-        normalized = ((points - min_vals) / range_vals * (self.image_size - 1)).astype(int)
-        
-        # Draw gesture on image
-        for i in range(len(normalized) - 1):
-            x1, y1 = normalized[i]
-            x2, y2 = normalized[i + 1]
-            
-            # Simple line drawing (Bresenham's algorithm simplified)
-            steps = max(abs(x2 - x1), abs(y2 - y1)) + 1
-            for t in range(steps):
-                x = int(x1 + (x2 - x1) * t / steps)
-                y = int(y1 + (y2 - y1) * t / steps)
-                if 0 <= x < self.image_size and 0 <= y < self.image_size:
-                    image[y, x] = 1.0
-        
-        return image
-    
-    def train(self, X_train, y_train, class_names, epochs=20):
-        Train CNN on gesture images
-        self.class_names = class_names
-        
-        # Convert gestures to images
-        X_images = np.array([
-            self._gesture_to_image(gesture) for gesture in X_train
-        ])
-        X_images = X_images.reshape(-1, self.image_size, self.image_size, 1)
-        
-        self.model.fit(X_images, y_train, epochs=epochs, validation_split=0.2)
-    
-    def recognize(self, points):
-        Classify gesture using CNN
-        image = self._gesture_to_image(points)
-        image = image.reshape(1, self.image_size, self.image_size, 1)
-        
-        predictions = self.model.predict(image, verbose=0)
-        class_idx = np.argmax(predictions[0])
-        confidence = predictions[0][class_idx]
-        
-        gesture_name = self.class_names[class_idx] if self.class_names else str(class_idx)
-        return gesture_name, float(confidence)"""
-
-
 class RandomForestGestureRecognizer:
     """
     Algorithm 5: Random Forest Classifier
@@ -370,10 +264,7 @@ class RandomForestGestureRecognizer:
     - Less data hungry than deep learning
     - Feature importance analysis
     
-    How it works: Extract features, train ensemble of decision trees
-    
-    Why Random Forest over single tree: Better generalization
-    Use case: Medium-sized datasets (100-1000 samples)
+    How it works: Extract features, train ensemble of decision tree
     """
     def __init__(self, n_estimators=100):
         self.model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
@@ -492,9 +383,6 @@ class KNNGestureRecognizer:
     - Works well with small datasets
     
     How it works: Find k closest training examples, vote for class
-    
-    Why KNN: No assumptions about data distribution
-    Use case: When you have small, clean dataset
     """
     def __init__(self, n_neighbors=5):
         self.model = KNeighborsClassifier(n_neighbors=n_neighbors)
@@ -539,31 +427,8 @@ ALGORITHM COMPARISON FOR DRAW IN AIR:
 │ Template Matching   │ Low      │ Very Fast  │ Minimal     │ Very Simple  │
 │ DTW                 │ Medium   │ Fast       │ Minimal     │ Simple       │
 │ HMM                 │ Medium   │ Medium     │ Medium      │ Medium       │
-│ CNN                 │ High     │ Slow       │ Large       │ Complex      │
 │ Random Forest       │ High     │ Fast       │ Medium      │ Medium       │
 │ KNN                 │ Medium   │ Very Fast  │ Small       │ Simple       │
 └─────────────────────┴──────────┴────────────┴─────────────┴──────────────┘
 
-RECOMMENDED IMPLEMENTATION STRATEGY:
-
-Phase 1 (Prototype): Template Matching + DTW
-- Quick to implement
-- No training required
-- Good for demonstration
-
-Phase 2 (Production): Random Forest
-- Best balance of performance and efficiency
-- Fast real-time classification
-- Interpretable features
-
-Phase 3 (Advanced): CNN
-- Highest accuracy potential
-- Use when you have 1000+ labeled samples
-- Good for complex gestures
-
-WHY NOT OTHER ALGORITHMS?
-- SVM: Similar to Random Forest but slower
-- RNN/LSTM: Overkill for simple gestures, slower
-- Naive Bayes: Poor with continuous features
-- Logistic Regression: Too simple for complex patterns
 """

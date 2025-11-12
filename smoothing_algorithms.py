@@ -1,6 +1,5 @@
 """
 Smoothing Algorithms for Hand Gesture Tracking
-Author: Swapana
 Purpose: Reduce noise and jitter in hand tracking coordinates
 """
 

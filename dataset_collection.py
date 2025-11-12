@@ -17,7 +17,6 @@ import numpy as np
 import json
 from datetime import datetime
 
-# ... rest of code
 
 class DatasetCollector:
     def __init__(self, save_dir='gesture_dataset'):
@@ -63,6 +62,12 @@ class DatasetCollector:
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         
+        '''cv2.VideoCapture(0) opens your webcam feed (camera index 0).
+
+        CAP_PROP_FRAME_WIDTH and CAP_PROP_FRAME_HEIGHT set the resolution.
+
+        Each frame captured will be used for hand tracking and display.'''
+        
         print("Dataset Collection Started!")
         print("Controls:")
         print("  SPACE: Start/Stop recording")
@@ -76,6 +81,16 @@ class DatasetCollector:
                 break
             
             frame = cv2.flip(frame, 1)
+            
+            '''cap.read() returns two values:
+
+            ret → Boolean (True if a frame was read successfully)
+
+            frame → The actual image (a NumPy array)
+
+            cv2.flip(frame, 1) flips the frame horizontally to act like a mirror —
+            so your hand movements appear natural on-screen.'''
+            
             h, w, c = frame.shape
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
@@ -94,11 +109,32 @@ class DatasetCollector:
             cv2.putText(frame, f"Samples: {len(self.gesture_data)}", (10, 110),
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
             
+            '''cv2.putText() overlays text on the video feed:
+
+            Parameters:
+
+            (image, text, position, font, scale, color, thickness)
+
+            Here it displays:
+
+            Current gesture name
+
+            Recording status
+
+            Total samples collected
+
+            It acts like a simple on-screen dashboard.'''
+            
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     # Draw hand landmarks
                     self.mp_draw.draw_landmarks(
                         frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
+                    
+                    '''MediaPipes drawing utility uses OpenCV to draw the 21 hand landmark 
+                    points and connecting lines on the frame.
+
+                    This visual feedback helps ensure your hand is being tracked correctly.'''
                     
                     # Extract index finger tip (landmark 8)
                     index_tip = hand_landmarks.landmark[8]
@@ -106,6 +142,15 @@ class DatasetCollector:
                     
                     # Draw tracking point
                     cv2.circle(frame, (x, y), 10, (0, 255, 255), -1)
+                    
+                    '''Converts the normalized landmark coordinates (0–1) to actual pixel values.
+
+                    cv2.circle() draws a yellow dot on the index fingertip, showing the tracking point.
+                    Parameters:
+
+                    (image, center, radius, color, thickness)
+
+                    thickness = -1 → filled circle.'''
                     
                     # Record data if recording
                     if self.recording:
